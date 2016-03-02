@@ -11,6 +11,9 @@ Select playerName, playerID from fantasysports.NBAPlayer group by playerName;
 Select teamID, teamName from fantasysports.NBATeam;
 Select count(*) from fantasysports.NBAPlayerStats;
 
+Select SUM(FT) from fantasysports.NBAPlayerStats where playerID=824;
+Select SUM(FTA) from fantasysports.NBAPlayerStats where playerID=824;
+
 #delete from fantasysports.NBAPlayerStats where rowID > 0
 
 select * from fantasysports.NBAGame as a, fantasysports.NBAPlayerStats as b where `date`='2015-10-27' and a.gameID = b.gameID;
