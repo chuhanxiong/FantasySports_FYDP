@@ -41,7 +41,7 @@ public class QueryDAO {
         Class.forName("com.mysql.jdbc.Driver").newInstance();
         Connection conn  = DriverManager.getConnection(URL, USER, PASS);
 
-        String authQuery = "Select token From Auth Where token = ?";
+        String authQuery = "Select Token From AuthToken Where Token = ?";
         PreparedStatement authStmt = conn.prepareStatement(authQuery);
         authStmt.setString(1, token);
         ResultSet authRS = authStmt.executeQuery();
@@ -136,7 +136,7 @@ public class QueryDAO {
         Class.forName("com.mysql.jdbc.Driver").newInstance();
         Connection conn  = DriverManager.getConnection(URL, USER, PASS);
 
-        String authQuery = "Select token From Auth Where token = ?";
+        String authQuery = "Select Token From AuthToken Where Token = ?";
         PreparedStatement authStmt = conn.prepareStatement(authQuery);
         authStmt.setString(1, token);
         ResultSet authRS = authStmt.executeQuery();
@@ -183,7 +183,7 @@ public class QueryDAO {
             throws Exception {
         Connection conn = DriverManager.getConnection(URL, USER, PASS);
 
-        String authQuery = "Select token From Auth Where token = ?";
+        String authQuery = "Select Token From AuthToken Where Token = ?";
         PreparedStatement authStmt = conn.prepareStatement(authQuery);
         authStmt.setString(1, token);
         ResultSet authRS = authStmt.executeQuery();
@@ -281,7 +281,7 @@ public class QueryDAO {
             throws Exception {
         Connection conn = DriverManager.getConnection(URL, USER, PASS);
 
-        String authQuery = "Select token From Auth Where token = ?";
+        String authQuery = "Select Token From AuthToken Where Token = ?";
         PreparedStatement authStmt = conn.prepareStatement(authQuery);
         authStmt.setString(1, token);
         ResultSet authRS = authStmt.executeQuery();
@@ -342,7 +342,7 @@ public class QueryDAO {
             throws Exception {
         Connection conn = DriverManager.getConnection(URL, USER, PASS);
 
-        String authQuery = "Select token From Auth Where token = ?";
+        String authQuery = "Select Token From AuthToken Where Token = ?";
         PreparedStatement authStmt = conn.prepareStatement(authQuery);
         authStmt.setString(1, token);
         ResultSet authRS = authStmt.executeQuery();
@@ -406,7 +406,7 @@ public class QueryDAO {
             throws SQLException{
         Connection conn = DriverManager.getConnection(URL, USER, PASS);
 
-        String authQuery = "Select token From Auth Where token = ?";
+        String authQuery = "Select Token From AuthToken Where Token = ?";
         PreparedStatement authStmt = conn.prepareStatement(authQuery);
         authStmt.setString(1, token);
         ResultSet authRS = authStmt.executeQuery();
@@ -473,7 +473,7 @@ public class QueryDAO {
 
         Connection conn = DriverManager.getConnection(URL, USER, PASS);
 
-        String authQuery = "Select token From Auth Where token = ?";
+        String authQuery = "Select Token From AuthToken Where Token = ?";
         PreparedStatement authStmt = conn.prepareStatement(authQuery);
         authStmt.setString(1, token);
         ResultSet authRS = authStmt.executeQuery();
@@ -541,7 +541,7 @@ public class QueryDAO {
         String readOnlyPass = "readonly";
         Connection conn = DriverManager.getConnection(url, readOnlyUser, readOnlyPass);
 
-        String authQuery = "Select token From Auth Where token = ?";
+        String authQuery = "Select Token From AuthToken Where Token = ?";
         PreparedStatement authStmt = conn.prepareStatement(authQuery);
         authStmt.setString(1, token);
         ResultSet authRS = authStmt.executeQuery();
