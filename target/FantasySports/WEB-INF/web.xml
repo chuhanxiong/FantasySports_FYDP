@@ -20,5 +20,9 @@
         <servlet-name>fantasysports</servlet-name>
         <url-pattern>/*</url-pattern>       
     </servlet-mapping>
-  
+  <listener>
+    <listener-class>
+       com.fantasysports.DAO.BasicDAO
+    </listener-class>
+</listener>
 </web-app>

@@ -11,15 +11,15 @@ import org.apache.log4j.Logger;
 
 public class BasicDAO implements ServletContextListener {
 	private static Connection conn = null;
-	private final static String RDSUrl = "jdbc:mysql://localhost:3306/fantasysports?connectTimeout=2000";
+	private final static String RDSUrl = "jdbc:mysql://fantasysports.cvut0y8wktov.us-west-2.rds.amazonaws.com:3306/fantasysports?connectTimeout=2000";
 	private final static String RDSUser = "root";
-	private final static String RDSPassword = "harryhamymicheal";
+	private final static String RDSPassword = "hamyharrymic";
 	private final static Logger logger = Logger.getLogger(BasicDAO.class);
 
 	public void init() {
 		try {
 			Class.forName("com.mysql.jdbc.Driver").newInstance();
-			conn = DriverManager.getConnection(RDSUrl, RDSUser, "");
+			conn = DriverManager.getConnection(RDSUrl, RDSUser, RDSPassword);
 			logger.info("Successfully connected to DB");
 		} catch (SQLException | InstantiationException | IllegalAccessException
 				| ClassNotFoundException e) {
