@@ -1,2 +1,3 @@
 *.class
 .DS_Store
+/WebCrawler-master/WebCrawlPlayerData/nbproject/private/
