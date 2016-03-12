@@ -110,15 +110,4 @@ public class QueryController {
 		}
 	}
 
-	@ResponseBody
-	@RequestMapping(produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.MULTIPART_FORM_DATA_VALUE, value = "/getNBAAdvancedStats", method = RequestMethod.POST)
-	public String getNBAAdvancedStats(@RequestPart MultipartFile file) {
-		try {
-			return QueryDAO.getNBAAdvancedStats(NBAQueryObject.convertFileToNBAQueryObject(file), "").toString();
-		} catch (Exception e) {
-			e.printStackTrace();
-			return new JSONArray(e.getMessage()).toString();
-		}
-	}
-
 }
