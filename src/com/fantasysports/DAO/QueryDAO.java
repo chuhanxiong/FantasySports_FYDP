@@ -1,10 +1,10 @@
 package com.fantasysports.DAO;
 
-import org.json.JSONArray;
-
 import com.fantasysports.Model.League.Leagues;
 import com.fantasysports.Model.NBAQueryObject;
 import com.fantasysports.util.ResultSetConverter;
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 import java.sql.*;
 
@@ -41,15 +41,15 @@ public class QueryDAO {
         Class.forName("com.mysql.jdbc.Driver").newInstance();
         Connection conn  = DriverManager.getConnection(URL, USER, PASS);
 
-        /*String authQuery = "Select token_id From Auth Where token_id = " + token;
+        String authQuery = "Select token From Auth Where token = ?";
         PreparedStatement authStmt = conn.prepareStatement(authQuery);
-
+        authStmt.setString(1, token);
         ResultSet authRS = authStmt.executeQuery();
 
         if (!authRS.next()) {
             return null;
         }
-        authStmt.close();*/
+        authStmt.close();
 
         String dataQuery = "";
         switch(league) {
@@ -136,14 +136,15 @@ public class QueryDAO {
         Class.forName("com.mysql.jdbc.Driver").newInstance();
         Connection conn  = DriverManager.getConnection(URL, USER, PASS);
 
-        /*String authQuery = "Select token_id From Auth Where token_id = " + token;
+        String authQuery = "Select token From Auth Where token = ?";
         PreparedStatement authStmt = conn.prepareStatement(authQuery);
+        authStmt.setString(1, token);
         ResultSet authRS = authStmt.executeQuery();
 
         if (!authRS.next()) {
             return null;
         }
-        authStmt.close();*/
+        authStmt.close();
 
         String dataQuery = "";
         switch(league) {
@@ -182,15 +183,15 @@ public class QueryDAO {
             throws Exception {
         Connection conn = DriverManager.getConnection(URL, USER, PASS);
 
-        /*String authQuery = "Select token_id From Auth Where token_id = " + token;
+        String authQuery = "Select token From Auth Where token = ?";
         PreparedStatement authStmt = conn.prepareStatement(authQuery);
-
+        authStmt.setString(1, token);
         ResultSet authRS = authStmt.executeQuery();
 
         if (!authRS.next()) {
             return null;
         }
-        authStmt.close();*/
+        authStmt.close();
         String dataQuery = "";
 
         switch (league) {
@@ -280,15 +281,15 @@ public class QueryDAO {
             throws Exception {
         Connection conn = DriverManager.getConnection(URL, USER, PASS);
 
-        /*String authQuery = "Select token_id From Auth Where token_id = " + token;
+        String authQuery = "Select token From Auth Where token = ?";
         PreparedStatement authStmt = conn.prepareStatement(authQuery);
-
+        authStmt.setString(1, token);
         ResultSet authRS = authStmt.executeQuery();
 
         if (!authRS.next()) {
             return null;
         }
-        authStmt.close();*/
+        authStmt.close();
         String dataQuery = "";
 
         switch (league) {
@@ -341,15 +342,15 @@ public class QueryDAO {
             throws Exception {
         Connection conn = DriverManager.getConnection(URL, USER, PASS);
 
-        /*String authQuery = "Select token_id From Auth Where token_id = " + token;
+        String authQuery = "Select token From Auth Where token = ?";
         PreparedStatement authStmt = conn.prepareStatement(authQuery);
-
+        authStmt.setString(1, token);
         ResultSet authRS = authStmt.executeQuery();
 
         if (!authRS.next()) {
             return null;
         }
-        authStmt.close();*/
+        authStmt.close();
         String dataQuery = "";
 
         switch (league) {
@@ -401,19 +402,19 @@ public class QueryDAO {
         return null;
     }
 
-    public static JSONArray getTeamPeriodStats(String teamName, Leagues league, String startDate, String endDate, String token)
+    public static JSONArray getTeamPeriodicStats(String teamName, Leagues league, String startDate, String endDate, String token)
             throws SQLException{
         Connection conn = DriverManager.getConnection(URL, USER, PASS);
 
-        /*String authQuery = "Select token_id From Auth Where token_id = " + token;
+        String authQuery = "Select token From Auth Where token = ?";
         PreparedStatement authStmt = conn.prepareStatement(authQuery);
-
+        authStmt.setString(1, token);
         ResultSet authRS = authStmt.executeQuery();
 
         if (!authRS.next()) {
             return null;
         }
-        authStmt.close();*/
+        authStmt.close();
         String dataQuery = "";
 
         switch (league) {
@@ -472,15 +473,15 @@ public class QueryDAO {
 
         Connection conn = DriverManager.getConnection(URL, USER, PASS);
 
-        /*String authQuery = "Select token_id From Auth Where token_id = " + token;
+        String authQuery = "Select token From Auth Where token = ?";
         PreparedStatement authStmt = conn.prepareStatement(authQuery);
-
+        authStmt.setString(1, token);
         ResultSet authRS = authStmt.executeQuery();
 
         if (!authRS.next()) {
             return null;
         }
-        authStmt.close();*/
+        authStmt.close();
 
         String dataQuery = "";
 
@@ -531,6 +532,43 @@ public class QueryDAO {
         System.out.println(dataQuery);
         ResultSet dataRS = dataStmt.executeQuery();
         return ResultSetConverter.convert(dataRS);
+    }
+
+    public static JSONArray getCustomQuery(String customQuery, String token)
+            throws SQLException {
+        String url = "jdbc:mysql://fantasysports.cvut0y8wktov.us-west-2.rds.amazonaws.com:3306/fantasysports?connectTimeout=2000";
+        String readOnlyUser = "readonly";
+        String readOnlyPass = "readonly";
+        Connection conn = DriverManager.getConnection(url, readOnlyUser, readOnlyPass);
+
+        String authQuery = "Select token From Auth Where token = ?";
+        PreparedStatement authStmt = conn.prepareStatement(authQuery);
+        authStmt.setString(1, token);
+        ResultSet authRS = authStmt.executeQuery();
+
+        if (!authRS.next()) {
+            return null;
+        }
+        authStmt.close();
+
+        PreparedStatement dataStmt = conn.prepareStatement(customQuery);
+        ResultSet dataRS = dataStmt.executeQuery();
+        return ResultSetConverter.convert(dataRS);
+    }
+
+    public static JSONArray getUID() throws SQLException{
+        Connection conn = DriverManager.getConnection(URL, USER, PASS);
+        String call = "{call genUID(?)}";
+        CallableStatement stmt = conn.prepareCall(call);
+        stmt.registerOutParameter(1, Types.VARCHAR);
+        stmt.executeUpdate();
+        String uid = stmt.getString(1);
+
+        JSONObject jo = new JSONObject();
+        jo.put("token", uid);
+        JSONArray ja = new JSONArray();
+        ja.put(jo);
+        return ja;
     }
 }
 

@@ -1,5 +1,3 @@
-package org.arms.sportsAPI;
-
 import org.json.JSONArray;
 
 import java.sql.*;
@@ -523,8 +521,39 @@ public class PrimaryQueries {
         }
         dataStmt.setInt(listOfIDs.length+1, 30);
         dataStmt.setInt(listOfIDs.length+2, 5);
-        System.out.println(dataQuery);
         ResultSet dataRS = dataStmt.executeQuery();
         return ResultSetConverter.convert(dataRS);
+    }
+
+    public static JSONArray getCustomQuery(String customQuery, String token)
+            throws SQLException {
+        String url = "jdbc:mysql://fantasysports.cvut0y8wktov.us-west-2.rds.amazonaws.com:3306/fantasysports?connectTimeout=2000";
+        String readOnlyUser = "readonly";
+        String readOnlyPass = "readonly";
+        Connection conn = DriverManager.getConnection(url, readOnlyUser, readOnlyPass);
+
+        String authQuery = "Select token From AuthToken Where token = ?";
+        PreparedStatement authStmt = conn.prepareStatement(authQuery);
+        authStmt.setString(1, token);
+        ResultSet authRS = authStmt.executeQuery();
+
+        if (!authRS.next()) {
+            return null;
+        }
+        authStmt.close();
+
+        PreparedStatement dataStmt = conn.prepareStatement(customQuery);
+        ResultSet dataRS = dataStmt.executeQuery();
+        return ResultSetConverter.convert(dataRS);
+    }
+
+    public static String getUID() throws SQLException{
+        Connection conn = DriverManager.getConnection(URL, USER, PASS);
+        String call = "{call genUID(?)}";
+        CallableStatement stmt = conn.prepareCall(call);
+        stmt.registerOutParameter(1, Types.VARCHAR);
+        stmt.executeUpdate();
+        String uid = stmt.getString(1);
+        return uid;
     }
 }
