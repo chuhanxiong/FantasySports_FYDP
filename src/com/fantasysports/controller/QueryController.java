@@ -3,6 +3,7 @@ package com.fantasysports.controller;
 import com.fantasysports.DAO.QueryDAO;
 import com.fantasysports.Model.League.Leagues;
 import com.fantasysports.Model.NBAQueryObject;
+import com.fantasysports.Model.NHLQueryObject;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.springframework.http.MediaType;
@@ -171,6 +172,47 @@ public class QueryController {
 				ob.setThreePPercent(Double.valueOf(jo.getString("3P%")));
 			}
 			return QueryDAO.getNBAAdvancedStats(ob, token).toString();
+		} catch (Exception e) {
+			e.printStackTrace();
+			return new JSONArray(e.getMessage()).toString();
+		}
+	}
+
+	@ResponseBody
+	@RequestMapping(
+			produces = MediaType.APPLICATION_JSON_VALUE,
+			consumes = MediaType.APPLICATION_JSON_VALUE,
+			value = "/getNHLAdvancedStats",
+			method = RequestMethod.POST)
+	public String getNHLAdvancedStats(
+			@RequestBody String input
+	) {
+		try {
+			JSONObject jo = new JSONObject(input);
+			NHLQueryObject ob = new NHLQueryObject();
+			String token = jo.getString("token");
+			if(jo.has("playerName")) {
+				ob.setPlayerName(jo.getString("playerName"));
+			}
+			if(jo.has("teamName")) {
+				ob.setTeamName(jo.getString("teamName"));
+			}
+			if(jo.has("PTS")) {
+				ob.setPTS(Integer.valueOf(jo.getString("PTS")));
+			}
+			if(jo.has("G")) {
+				ob.setG(Integer.valueOf(jo.getString("G")));
+			}
+			if(jo.has("A")) {
+				ob.setA(Integer.valueOf(jo.getString("A")));
+			}
+			if(jo.has("startDate")) {
+				ob.setStartDate(jo.getString("startDate"));
+			}
+			if(jo.has("endDate")) {
+				ob.setEndDate(jo.getString("endDate"));
+			}
+			return QueryDAO.getNHLAdvancedStats(ob, token).toString();
 		} catch (Exception e) {
 			e.printStackTrace();
 			return new JSONArray(e.getMessage()).toString();

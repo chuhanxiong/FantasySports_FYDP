@@ -2,6 +2,7 @@ package com.fantasysports.DAO;
 
 import com.fantasysports.Model.League.Leagues;
 import com.fantasysports.Model.NBAQueryObject;
+import com.fantasysports.Model.NHLQueryObject;
 import com.fantasysports.util.ResultSetConverter;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -194,20 +195,22 @@ public class QueryDAO {
         }
         authStmt.close();
         String dataQuery = "";
-
+        String getPlayerIDsQuery = "";
+        PreparedStatement stmt = null;
+        ResultSet rs = null;
+        int playerID = 0;
         switch (league) {
             case NBA:
-            case WNBA:
-                String getPlayerIDsQuery = "Select playerID from NBAPlayer Where playerName = ?";
-                PreparedStatement getPlayerIDstmt = conn.prepareStatement(getPlayerIDsQuery);
-                getPlayerIDstmt.setString(1, playerName);
-                ResultSet playerIDrs = getPlayerIDstmt.executeQuery();
+                getPlayerIDsQuery = "Select playerID from NBAPlayer Where playerName = ?";
+                stmt = conn.prepareStatement(getPlayerIDsQuery);
+                stmt.setString(1, playerName);
+                rs = stmt.executeQuery();
 
-                int playerID = 0;
-                if(playerIDrs.next()) {
-                    playerID = playerIDrs.getInt(1);
+                playerID = 0;
+                if(rs.next()) {
+                    playerID = rs.getInt(1);
                 }
-                getPlayerIDstmt.close();
+                stmt.close();
                 dataQuery = "Select "
                         + "playerID, "
                         + "sum(MP) as MP, "
@@ -235,47 +238,55 @@ public class QueryDAO {
                         + " and date <= ?"
                         + " and a.gameID = b.gameID"
                         + " Group By playerID";
-                PreparedStatement dataStmt = conn.prepareStatement(dataQuery);
-                dataStmt.setInt(1, playerID);
-                dataStmt.setDate(2, java.sql.Date.valueOf(startDate));
-                dataStmt.setDate(3, java.sql.Date.valueOf(endDate));
-                ResultSet dataRS = dataStmt.executeQuery();
-                return ResultSetConverter.convert(dataRS);
+                stmt = conn.prepareStatement(dataQuery);
+                stmt.setInt(1, playerID);
+                stmt.setDate(2, java.sql.Date.valueOf(startDate));
+                stmt.setDate(3, java.sql.Date.valueOf(endDate));
+                rs = stmt.executeQuery();
+                return ResultSetConverter.convert(rs);
             case NHL:
+                getPlayerIDsQuery = "Select playerID from NHLPlayer Where playerName = ?";
+                stmt = conn.prepareStatement(getPlayerIDsQuery);
+                stmt.setString(1, playerName);
+                rs = stmt.executeQuery();
+
+                playerID = 0;
+                if(rs.next()) {
+                    playerID = rs.getInt(1);
+                }
+                stmt.close();
                 dataQuery = "Select "
-                        + "playerName, "
-                        + "teamName, "
+                        + "playerID, "
                         + "sum(G) as G, "
                         + "sum(A) as A, "
                         + "sum(PTS) as PTS, "
                         + "sum(PlusMinus) as PlusMinus, "
                         + "sum(PIM) as PIM, "
-                        + "sum(PP) as PP, "
-                        + "sum(S), 3P%, "
-                        + "sum(`S%`) as `S%`, "
-                        + "sum(TSA) as TSA, "
-                        + "avg(TOI), TOI, "
-                        + "sum(FOwin) as FOwin, "
-                        + "sum(FOloss) as FOloss, "
-                        + "avg(`FO%`), `FO%`, "
-                        + "sum(HIT) as HIT, "
-                        + "sum(BLK) as BLK, "
-                        + "sum(TK) as TK, "
-                        + "sum(AST) as AST, "
-                        + "sum(GV) as GV "
-                        + "From NHLPlayer "
-                        + "Where playerName = " + playerName
-                        + " and date >= " + startDate
-                        + " and date <= " + endDate
+                        + "sum(EVG) as EVG, "
+                        + "sum(PPG), PPG, "
+                        + "sum(SHG) as SHG, "
+                        + "sum(GW) as GW, "
+                        + "sum(EVA), EVA, "
+                        + "sum(PPA) as PPA, "
+                        + "sum(SHA) as SHA, "
+                        + "sum(S), S, "
+                        + "avg(S%) as `S%`, "
+                        + "sum(TOI) as TOI, "
+                        + "From NHLPlayerStats as a, NHLGame as b "
+                        + "Where playerID = ?"
+                        + " and date >= ?"
+                        + " and date <= ?"
                         + " and a.gameID = b.gameID"
                         + " Group By playerID";
+                stmt = conn.prepareStatement(dataQuery);
+                stmt.setInt(1, playerID);
+                stmt.setDate(2, java.sql.Date.valueOf(startDate));
+                stmt.setDate(3, java.sql.Date.valueOf(endDate));
+                rs = stmt.executeQuery();
+                return ResultSetConverter.convert(rs);
             case MLB:
         }
-
-        PreparedStatement dataStmt = conn.prepareStatement(dataQuery);
-        ResultSet dataRS = dataStmt.executeQuery();
-
-        return ResultSetConverter.convert(dataRS);
+        return null;
     }
 
     public static JSONArray getTeamCurrentOverallStats(String teamName, Leagues league, String token)
@@ -534,6 +545,94 @@ public class QueryDAO {
         }
         if (teamID != 0) {
             dataStmt.setInt(count, teamID);
+            count++;
+        }
+        for (String key: map.keySet()) {
+            dataStmt.setDouble(count, Math.abs(Double.valueOf(map.get(key))));
+            count++;
+        }
+        ResultSet dataRS = dataStmt.executeQuery();
+        return ResultSetConverter.convert(dataRS);
+    }
+
+    public static JSONArray getNHLAdvancedStats(NHLQueryObject qb, String token)
+            throws SQLException {
+
+        Connection conn = DriverManager.getConnection(URL, USER, PASS);
+
+        String authQuery = "Select Token From AuthToken Where Token = ?";
+        PreparedStatement authStmt = conn.prepareStatement(authQuery);
+        authStmt.setString(1, token);
+        ResultSet authRS = authStmt.executeQuery();
+
+        if (!authRS.next()) {
+            return null;
+        }
+        authStmt.close();
+
+        String dataQuery = "Select * from NHLPlayerStats where ";
+
+        String playerName = qb.getPlayerName();
+        int playerID = 0;
+        if (!playerName.equals("")) {
+            String getPlayerIDsQuery = "Select playerID from NHLPlayer Where playerName = ?";
+            PreparedStatement getPlayerIDstmt = conn.prepareStatement(getPlayerIDsQuery);
+            getPlayerIDstmt.setString(1, playerName);
+            ResultSet playerIDrs = getPlayerIDstmt.executeQuery();
+
+            if (playerIDrs.next()) {
+                playerID = playerIDrs.getInt(1);
+            }
+            getPlayerIDstmt.close();
+            dataQuery += "playerID = ?";
+        }
+        String teamName = qb.getTeamName();
+        int teamID = 0;
+        if (!teamName.equals("")) {
+            String getTeamIDsQuery = "SELECT teamID FROM NHLTeam WHERE teamName = ?";
+            PreparedStatement getTeamIDstmt = conn.prepareStatement(getTeamIDsQuery);
+            getTeamIDstmt.setString(1, teamName);
+            ResultSet teamIDrs = getTeamIDstmt.executeQuery();
+
+            if (teamIDrs.next()) {
+                teamID = teamIDrs.getInt(1);
+            }
+            getTeamIDstmt.close();
+            dataQuery += "teamID = ?";
+        }
+        if (!qb.getStartDate().equals("")) {
+            dataQuery += " and `date` >= ?";
+        }
+        if (!qb.getEndDate().equals("")) {
+            dataQuery += " and `date` <= ?";
+        }
+        LinkedHashMap<String, String> map = qb.getMap();
+        for (String key : map.keySet()) {
+            double value = Double.valueOf(map.get(key));
+            if (value > 0) {
+                dataQuery += " and " + key + " >= ?";
+            }
+            else {
+                dataQuery += " and " + key + " < ?";
+            }
+        }
+
+        PreparedStatement dataStmt = conn.prepareStatement(dataQuery);
+        int count = 1;
+        if (playerID != 0) {
+            dataStmt.setInt(count, playerID);
+            count++;
+        }
+        if (teamID != 0) {
+            dataStmt.setInt(count, teamID);
+            count++;
+        }
+        if (!qb.getStartDate().equals("")) {
+            dataStmt.setDate(count, java.sql.Date.valueOf(qb.getStartDate()));
+            count++;
+        }
+        if (!qb.getEndDate().equals("")) {
+            dataStmt.setDate(count, java.sql.Date.valueOf(qb.getEndDate()));
             count++;
         }
         for (String key: map.keySet()) {
