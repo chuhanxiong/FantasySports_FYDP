@@ -7,6 +7,7 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.sql.*;
+import java.util.LinkedHashMap;
 
 public class QueryDAO {
 
@@ -483,53 +484,62 @@ public class QueryDAO {
         }
         authStmt.close();
 
-        String dataQuery = "";
+        String dataQuery = "Select * from NBAPlayerStats where ";
 
-        dataQuery = "Select * from NBAPlayerStats where ";
-
-        String[] listOfNames = qb.getPlayerName();
-        int[] listOfIDs = new int[listOfNames.length];
-        for(int i = 0; i < listOfNames.length; i++) {
+        String playerName = qb.getPlayerName();
+        int playerID = 0;
+        if (!playerName.equals("")) {
             String getPlayerIDsQuery = "Select playerID from NBAPlayer Where playerName = ?";
             PreparedStatement getPlayerIDstmt = conn.prepareStatement(getPlayerIDsQuery);
-            getPlayerIDstmt.setString(1, listOfNames[i]);
+            getPlayerIDstmt.setString(1, playerName);
             ResultSet playerIDrs = getPlayerIDstmt.executeQuery();
 
-            int playerID = 0;
-            if(playerIDrs.next()) {
+            if (playerIDrs.next()) {
                 playerID = playerIDrs.getInt(1);
             }
             getPlayerIDstmt.close();
-            listOfIDs[i] = playerID;
-        }
-        dataQuery += " ( ";
-        for (int i = 0; i < listOfIDs.length; i++) {
-            if(i != 0) dataQuery += " or ";
             dataQuery += "playerID = ?";
         }
-        dataQuery += " ) ";
-        if (qb.getPTS() != 0) {
-            if (qb.getPTS() > 0){
-                dataQuery += " and PTS >= ?";
-            }else {
-                dataQuery += " and PTS < ?";
+        String teamName = qb.getTeamName();
+        int teamID = 0;
+        if (!teamName.equals("")) {
+            String getTeamIDsQuery = "SELECT teamID FROM NBATeam WHERE teamName = ?";
+            PreparedStatement getTeamIDstmt = conn.prepareStatement(getTeamIDsQuery);
+            getTeamIDstmt.setString(1, teamName);
+            ResultSet teamIDrs = getTeamIDstmt.executeQuery();
+
+            if (teamIDrs.next()) {
+                teamID = teamIDrs.getInt(1);
             }
+            getTeamIDstmt.close();
+            dataQuery += "teamID = ?";
         }
-        if (qb.getAST() != 0) {
-            if (qb.getAST() > 0){
-                dataQuery += " and PTS >= ?";
-            }else {
-                dataQuery += " and PTS < ?";
+
+        LinkedHashMap<String, String> map = qb.getMap();
+        for (String key : map.keySet()) {
+            double value = Double.valueOf(map.get(key));
+            if (value > 0) {
+                dataQuery += " and " + key + " >= ?";
+            }
+            else {
+                dataQuery += " and " + key + " < ?";
             }
         }
 
         PreparedStatement dataStmt = conn.prepareStatement(dataQuery);
-        for(int i = 0; i < listOfIDs.length; i++) {
-            dataStmt.setInt(i+1, listOfIDs[i]);
+        int count = 1;
+        if (playerID != 0) {
+            dataStmt.setInt(count, playerID);
+            count++;
         }
-        dataStmt.setInt(listOfIDs.length+1, 30);
-        dataStmt.setInt(listOfIDs.length+2, 5);
-        System.out.println(dataQuery);
+        if (teamID != 0) {
+            dataStmt.setInt(count, teamID);
+            count++;
+        }
+        for (String key: map.keySet()) {
+            dataStmt.setDouble(count, Math.abs(Double.valueOf(map.get(key))));
+            count++;
+        }
         ResultSet dataRS = dataStmt.executeQuery();
         return ResultSetConverter.convert(dataRS);
     }

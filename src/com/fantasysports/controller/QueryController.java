@@ -8,7 +8,6 @@ import org.json.JSONObject;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 
 @Controller
 @RequestMapping("/query")
@@ -129,27 +128,49 @@ public class QueryController {
 	}
 
 	@ResponseBody
-	@RequestMapping(produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.MULTIPART_FORM_DATA_VALUE, value = "/getNBAAdvancedStats", method = RequestMethod.POST)
+	@RequestMapping(
+			produces = MediaType.APPLICATION_JSON_VALUE,
+			consumes = MediaType.APPLICATION_JSON_VALUE,
+			value = "/getNBAAdvancedStats",
+			method = RequestMethod.POST)
 	public String getNBAAdvancedStats(
-			@RequestPart MultipartFile file,
-			@PathVariable String token
+			@RequestBody String input
 	) {
 		try {
-			return QueryDAO.getNBAAdvancedStats(NBAQueryObject.convertFileToNBAQueryObject(file), token).toString();
-		} catch (Exception e) {
-			e.printStackTrace();
-			return new JSONArray(e.getMessage()).toString();
-		}
-	}
-
-	@ResponseBody
-	@RequestMapping(produces = MediaType.APPLICATION_JSON_VALUE, value = "/getCustomQuery/{query}/{token}", method = RequestMethod.GET)
-	public String getCustomQuery(
-			@PathVariable String query,
-			@PathVariable String token
-	) {
-		try {
-			return QueryDAO.getCustomQuery(query, token).toString();
+			JSONObject jo = new JSONObject(input);
+			NBAQueryObject ob = new NBAQueryObject();
+			String token = jo.getString("token");
+			if(jo.has("playerName")) {
+				ob.setPlayerName(jo.getString("playerName"));
+			}
+			if(jo.has("teamName")) {
+				ob.setTeamName(jo.getString("teamName"));
+			}
+			if(jo.has("PTS")) {
+				ob.setPTS(Integer.valueOf(jo.getString("PTS")));
+			}
+			if(jo.has("AST")) {
+				ob.setAST(Integer.valueOf(jo.getString("AST")));
+			}
+			if(jo.has("BLK")) {
+				ob.setBLK(Integer.valueOf(jo.getString("BLK")));
+			}
+			if(jo.has("STL")) {
+				ob.setSTL(Integer.valueOf(jo.getString("STL")));
+			}
+			if(jo.has("TRB")) {
+				ob.setTRB(Integer.valueOf(jo.getString("TRB")));
+			}
+			if(jo.has("FG%")) {
+				ob.setFGPercent(Double.valueOf(jo.getString("FG%")));
+			}
+			if(jo.has("3P")) {
+				ob.setThreeP(Integer.valueOf(jo.getString("3P")));
+			}
+			if(jo.has("3P%")) {
+				ob.setThreePPercent(Double.valueOf(jo.getString("3P%")));
+			}
+			return QueryDAO.getNBAAdvancedStats(ob, token).toString();
 		} catch (Exception e) {
 			e.printStackTrace();
 			return new JSONArray(e.getMessage()).toString();
@@ -160,9 +181,9 @@ public class QueryController {
 	@RequestMapping(
 			produces = MediaType.APPLICATION_JSON_VALUE,
 			consumes = MediaType.APPLICATION_JSON_VALUE,
-			value = "/getCustomQueryNew",
+			value = "/getCustomQuery",
 			method = RequestMethod.POST)
-	public String getCustomQueryNew(
+	public String getCustomQuery(
 			@RequestBody String input
 	) {
 		try {

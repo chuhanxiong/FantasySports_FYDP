@@ -1,16 +1,14 @@
 package com.fantasysports.Model;
 
-import java.io.IOException;
-
-import org.springframework.web.multipart.MultipartFile;
+import java.util.LinkedHashMap;
 
 /**
  * Created by hamy on 3/1/2016.
  */
 public class NBAQueryObject {
 
-    private String[] playerName;
-    private String teamName;
+    private String playerName = "";
+    private String teamName = "";
     private double MP = 0.0;
     private int FG = 0;
     private int FGA = 0;
@@ -32,12 +30,21 @@ public class NBAQueryObject {
     private int PTS = 0;
     private String startDate = "";
     private String endDate = "";
+    private LinkedHashMap<String, String> map;
 
-    public String[] getPlayerName() {
+    public NBAQueryObject() {
+        map = new LinkedHashMap<String, String>();
+    }
+
+    public LinkedHashMap<String, String> getMap() {
+        return map;
+    }
+
+    public String getPlayerName() {
         return playerName;
     }
 
-    public void setPlayerName(String[] playerName) {
+    public void setPlayerName(String playerName) {
         this.playerName = playerName;
     }
 
@@ -79,6 +86,7 @@ public class NBAQueryObject {
 
     public void setFGPercent(double FGPercent) {
         this.FGPercent = FGPercent;
+        map.put("FG%", String.valueOf(FGPercent));
     }
 
     public int getThreeP() {
@@ -87,6 +95,7 @@ public class NBAQueryObject {
 
     public void setThreeP(int threeP) {
         this.threeP = threeP;
+        map.put("3P", String.valueOf(threeP));
     }
 
     public int getThreePA() {
@@ -103,6 +112,7 @@ public class NBAQueryObject {
 
     public void setThreePPercent(double threePPercent) {
         this.threePPercent = threePPercent;
+        map.put("3P%", String.valueOf(threePPercent));
     }
 
     public int getFT() {
@@ -151,6 +161,7 @@ public class NBAQueryObject {
 
     public void setTRB(int TRB) {
         this.TRB = TRB;
+        map.put("TRB", String.valueOf(TRB));
     }
 
     public int getAST() {
@@ -159,6 +170,7 @@ public class NBAQueryObject {
 
     public void setAST(int AST) {
         this.AST = AST;
+        map.put("AST", String.valueOf(AST));
     }
 
     public int getSTL() {
@@ -167,6 +179,7 @@ public class NBAQueryObject {
 
     public void setSTL(int STL) {
         this.STL = STL;
+        map.put("STL", String.valueOf(STL));
     }
 
     public int getBLK() {
@@ -175,6 +188,7 @@ public class NBAQueryObject {
 
     public void setBLK(int BLK) {
         this.BLK = BLK;
+        map.put("BLK", String.valueOf(BLK));
     }
 
     public int getTOV() {
@@ -199,11 +213,8 @@ public class NBAQueryObject {
 
     public void setPTS(int PTS) {
         this.PTS = PTS;
+        map.put("PTS", String.valueOf(PTS));
     }
-    
-    public static NBAQueryObject convertFileToNBAQueryObject(MultipartFile file) throws IOException{
-    	System.out.println(file.getInputStream().toString());
-    	return null;
-    }
+
 }
 
