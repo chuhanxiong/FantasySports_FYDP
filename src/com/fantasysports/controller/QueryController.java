@@ -4,6 +4,7 @@ import com.fantasysports.DAO.QueryDAO;
 import com.fantasysports.Model.League.Leagues;
 import com.fantasysports.Model.NBAQueryObject;
 import org.json.JSONArray;
+import org.json.JSONObject;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
@@ -148,6 +149,26 @@ public class QueryController {
 			@PathVariable String token
 	) {
 		try {
+			return QueryDAO.getCustomQuery(query, token).toString();
+		} catch (Exception e) {
+			e.printStackTrace();
+			return new JSONArray(e.getMessage()).toString();
+		}
+	}
+
+	@ResponseBody
+	@RequestMapping(
+			produces = MediaType.APPLICATION_JSON_VALUE,
+			consumes = MediaType.APPLICATION_JSON_VALUE,
+			value = "/getCustomQueryNew",
+			method = RequestMethod.POST)
+	public String getCustomQueryNew(
+			@RequestBody String input
+	) {
+		try {
+			JSONObject jo = new JSONObject(input);
+			String query = jo.getString("query");
+			String token = jo.getString("token");
 			return QueryDAO.getCustomQuery(query, token).toString();
 		} catch (Exception e) {
 			e.printStackTrace();
