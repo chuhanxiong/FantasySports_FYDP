@@ -665,7 +665,7 @@ public class QueryDAO {
         return ResultSetConverter.convert(dataRS);
     }
 
-    public static JSONArray getUID() throws SQLException{
+    public static JSONObject getUID() throws SQLException{
         Connection conn = DriverManager.getConnection(URL, USER, PASS);
         String call = "{call genUID(?)}";
         CallableStatement stmt = conn.prepareCall(call);
@@ -675,9 +675,7 @@ public class QueryDAO {
 
         JSONObject jo = new JSONObject();
         jo.put("token", uid);
-        JSONArray ja = new JSONArray();
-        ja.put(jo);
-        return ja;
+        return jo;
     }
 }
 
